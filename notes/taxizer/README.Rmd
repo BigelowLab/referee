@@ -1,0 +1,50 @@
+---
+title: "Taxonomy"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+```
+
+This doesn't advance us into new territory, but tries to make one of the early steps more modular by harvesting the full taxonomy (well, as much as we can) early in the process.
+
+
+Below we read in the result file, drop the IDs, and show a glimpse.  Note that the original listing from Erin was filtered to remove duplicates (just shy of 300 dropped) and the binomial names were "sentence cased" like `Genus species` before the search.
+
+The search, using [taxizedb](https://github.com/BigelowLab/mednaTaxaRef/blob/8391d8f31cdea70807a291c89782dc5ee5b11572/egrey/taxizer.R#L45), worked best by breaking the list into [chunks](https://github.com/BigelowLab/mednaTaxaRef/blob/8391d8f31cdea70807a291c89782dc5ee5b11572/egrey/input/taxizer.000.yaml#L12) with a short doze between requests. It takes a few minutes to run.
+
+```{r}
+path="/mnt/storage/data/edna/mednaTaxaRef/egrey/data/taxa"
+x = readr::read_csv(file.path(path,"source_binomial-taxa.csv.gz"), col_type = "c") |>
+  dplyr::select(-dplyr::ends_with("_id")) |>
+  glimpse()
+```
+For each rank there is a companion column, `*_id`, but I dropped those just for demonstration here.
+
+So, which are completely identified and which are partially identified?  We make a flag (a letter) for each rank, and compose a code from the flags we a missing rank is replaced with a "-" placeholder.   So, a complete identification has a codded flag like this `Skpcofgs`, but it phylum is missing then it would look like this `Sk-cofgs`.  **S**uperkingdom was capitalized to allow for **s**pecies
+
+```{r}
+flags = c("S", "k", "p", "c", "o", "f", "g", "s")
+na = "-"
+flag = apply(dplyr::select(x, -1) |> as.matrix(), 1,
+                                function(r){
+                                  ix = is.na(r)
+                                  flags[ix] <- na
+                                  paste(flags, collapse = "")
+                                })
+x = dplyr::mutate(x, flag = flag) |>
+  dplyr::glimpse()
+```
+We'll use the `flag` to our advantage with a simple tally.
+
+```{r}
+N = nrow(x)
+tally = dplyr::count(x, flag) |>
+  dplyr::mutate(proportion = round(n/N * 100,3))
+print(tally, n = nrow(tally))
+```
+
+
