@@ -33,7 +33,7 @@ paths = c("invertebrate" = "invertebrate",
 RESTEZ_PATHS = sapply(names(paths), function(p) file.path(RESTEZ_ROOT, paths[p]) )
   
 
-
+REFEREE_ROOT = readLines("~/.referee")
 # source functions
-ff = list.files("functions", full.names = TRUE, pattern = "^.*\\.R$")
+ff = list.files(file.path(REFEREE_ROOT, "functions"), full.names = TRUE, pattern = "^.*\\.R$")
 for (f in ff) source(f)

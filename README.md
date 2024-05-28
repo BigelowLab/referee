@@ -5,8 +5,21 @@ Here we store **scripts** and ancillary **functions** for building reference dat
 
 All scripts are run with a configuration input - we have chosen [YAML as the configuration format](https://github.com/BigelowLab/charlier/wiki/Configurations). 
 
+
+# Code
+
+All coding environments can, for now, be established by using `source()` on a special setup script cleverly names `setup.R`.   You **must** create a special hidden file that helps this code suite know where to find source code.  Use this command in R to set that up for your user.
+
+```
+cat("/some/path/to/the/referee/folder", sep = "\n", filename = "~/.referee")
+```
+
+Obviously you will want to edi th the path spcification.  If you are operating on `charlie` it will be `/mnt/storage/data/edna/packages/referee`.
+
 ## Workflow scripts
 
+  + `setup`  `source` this file first in all your workflow scripts (or interactive sessions). It loads the packages and sources ancillary functions. 
+  
   + `idorgs` mines the genbank databasii (plant, vertebrate, invertebrate) for taxa id and organism name(s)
   
   + `taxizer` attempts to populate a complete taxonomy with IDs for a provided species list

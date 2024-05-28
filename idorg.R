@@ -1,6 +1,6 @@
 # For each database in ['plant', 'vertebrate', 'invertebrate] do
 #   taxids = restez::list_db_ids() |>
-#     restez::gb_organism_get() |>
+#     restez::gb_organism_get() |>                  # <-- this script gets us to here
 #     some_local_reduction_function_goes_here() |>
 #     taxizedb::name2taxid()
 
@@ -27,8 +27,11 @@ main = function(cfg){
       orgs = restez::gb_organism_get(taxids)
       
       x = dplyr::tibble(id = taxids, org = orgs) |>
-      readr::write_csv(file.path(cfg$output$path,
-                         sprintf("%s_%s_idorg.csv.gz", cfg$version, dbname)))
+        readr::write_csv(file.path(cfg$output$path,
+                         sprintf("%s_%s_idorg.csv.gz", cfg$version, dbname))) |>
+        compact_idorg() |>
+        readr::write_csv(file.path(cfg$output$path,
+                         sprintf("%s_%s_compact.csv.gz", cfg$version, dbname))))
     })
   
   

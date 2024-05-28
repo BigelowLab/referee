@@ -1,3 +1,65 @@
+#' The default groupings and filters
+#'
+#' @return a list of groupings where the only element,  named "groupings", is itself
+#'  a list
+default_groupings = function(){
+  list(groupings = list(
+      plant = list(dbname = "plant", 
+          note = "any species in [Kingdom==Plantae]", 
+          filter = list(kingdom = c("Plantae", "Viridiplantae"))), 
+      invertebrate = list(dbname = "invertebrate", 
+          note = "any species in [Kingdom==Metazoa and Class != Vertebrata]", 
+          filter = list(kingdom = "Metazoa", class = "-Vertebrata")), 
+      vertebrate = list(dbname = "vertebrate", 
+          note = "any species in [Kingdom==Metazoa and Class == Vertebrata]", 
+          filter = list(kingdom = "Metazoa", class = "Vertebrata")), 
+      other = list(dbname = NULL, 
+          note = "any species in [Kingdom != Metazoa and Kingdom != Plantae]", 
+          filter = list(kingdom = "-Metazoa", kingdom = "-Plantae"))))
+}
+
+#' Assign rows of taxonomy to broad groupings
+#'
+#' @param x a table of taxonomy as per taxizer output
+#' @param cfg configuration list
+#' @param default char, the default group name, used also to 
+#'  identify the desired groups in the configuration
+#' @return the input table with an added 'group' column
+group_taxa = function(x, cfg = "default", 
+  default = "other"){
+  
+  if (is.character(cfg) && (cfg[1] == "default")) cfg = default_groupings()
+  
+  x = dplyr::mutate(x, group = default)
+  
+  groups = names(cfg$groupings)
+  groups = groups[!(groups %in% default)]
+  for (g in groups){
+    # iterate over the different specified levels (kingdom, class, etc)
+    ix = sapply(names(cfg$groupings[[g]]$filter),
+      function(tx){
+        vals = cfg$groupings[[g]]$filter[[tx]]
+        isneg = grepl("-", substring(vals, 1,1), fixed = TRUE)
+        vals[isneg] = substring(vals[isneg], 2)
+        # iterate over one or more values to match against at this level
+        sapply(seq_along(vals),
+          function(i){
+            if (isneg[i]){
+              r = !(x[[tx]] == vals[i])
+            } else {
+              r = x[[tx]] == vals[i]
+            }
+            r
+          })|>
+          apply(1, any_true)  # <- this means we are ORing
+      }) |>
+      apply(1, all_true)
+    x$group[ix] <- g
+    
+  }
+  x
+}
+
 #' Reformat a \code{taxizedb::classification()} output into a tibble.
 #'
 #' For each request \code{taxizedb::classification()} it returns a list element

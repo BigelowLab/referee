@@ -7,7 +7,8 @@
 
 main = function(cfg){
   charlier::info("starting version %s", cfg$version)
-  x = readr::read_csv(cfg$input$filename, show_col_types = FALSE) |>
+  
+  x = readr::read_csv(cfg$input$filename, col_types = "c") |>
      dplyr::select(dplyr::all_of(cfg$input$name))
   charlier::info("input has %i records",nrow(x))
   
@@ -22,6 +23,7 @@ main = function(cfg){
     x <- dplyr::filter(x, !ix)
     charlier::info("deduplication removed %i records leaving %i records", nx = n - nrow(x), nrow(x))
   }
+  
   
   
   if (!is.null(cfg$input$subsample)) {
