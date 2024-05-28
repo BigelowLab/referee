@@ -27,7 +27,7 @@ main = function(cfg){
   if (!is.null(cfg$input$subsample)) {
     charlier::info("subsampling to just %i records", cfg$input$subsample)
     set.seed(cfg$input$subsample)
-    x = dplyr::slice_sample(x, n = cfg$input$subsample)
+    x = dplyr::slice_sample(x, n = cfg$input$subsample, replace = FALSE)
   }
 
   charlier::info("searching taxonomy")
