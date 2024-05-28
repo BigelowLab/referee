@@ -49,7 +49,18 @@ Functions are small reueseable bits of code (atoms!) that are assembled into a l
 
 ### Function documentation
 
-We use the [Roxygen](https://roxygen2.r-lib.org/) style of documenting functions.  This style has us prepending documentation lines with `#'` and using the `@keyword` style of flagging arguments, ntes, return values, etc.  Starting this way makes for very consistent documentation and an easy transition to building a package.
+We use the [Roxygen](https://roxygen2.r-lib.org/) style of documenting functions.  This style has us prepending documentation lines with `#'` and using the `@keyword` style of flagging arguments, ntes, return values, etc.  Starting this way makes for very consistent documentation and an easy transition to building a package.  Here is an example...
+
+```
+#' Like isTRUE and isFALSE but for vectors
+#' 
+#' @param x logical vector with or without NAs
+#' @param na.rm logical, if TRUE remove NAs before consideration
+#' @return logical vector
+is_false = function(x = c(TRUE, FALSE, NA), na.rm = FALSE){
+  sapply(x, isFALSE)
+}
+```
 
 ## Vocabulary
   
