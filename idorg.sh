@@ -22,6 +22,6 @@
 module use /mod/bigelow
 module load R   
        
-CODEPATH=/mnt/storage/data/edna/packages/referee
+CODEPATH=$(head -n 1 ~/.referee)
 cd $CODEPATH     
 Rscript ${CODEPATH}/idorg.R ${config}

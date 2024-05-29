@@ -31,7 +31,7 @@ main = function(cfg){
                          sprintf("%s_%s_idorg.csv.gz", cfg$version, dbname))) |>
         compact_idorg() |>
         readr::write_csv(file.path(cfg$output$path,
-                         sprintf("%s_%s_compact.csv.gz", cfg$version, dbname))))
+                         sprintf("%s_%s_compact.csv.gz", cfg$version, dbname)))
     })
   
   
