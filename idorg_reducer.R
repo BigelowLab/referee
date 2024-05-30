@@ -33,12 +33,12 @@ main = function(cfg){
   # the first pass is for exact matches
   
   for (name in names(cfg$input$idorg)){
-     charlier::info("extact matching input to %s idorg", name)
+     charlier::info("exact matching input to %s idorg", name)
      idorg = readr::read_csv(cfg$input$idorg[[name]], col_types = 'c')
      mtch = match(species[[cfg$input$name]], idorg$org)
      ix = !is.na(mtch)
      charlier::info("%i exact matches", sum(ix))
-     species$exact = TRUE
+     species$exact[ix] = TRUE
      species$group[ix] <- name
      species$org[ix] <- idorg$org[mtch[ix]]
      species$id[ix] <- idorg$id[mtch[ix]] 
@@ -59,7 +59,7 @@ main = function(cfg){
         function(tbl, key){
            ix = agrep(tbl[[cfg$input$name]], idorg$org, ignore.case = TRUE)
            if (length(ix) > 0){
-             tbl$extact = FALSE
+             tbl$exact = FALSE
              tbl$group = name
              tbl$org <- paste(idorg$org[mtch[ix]], collapse = ";")
              tbl$id <- paste(idorg$id[mtch[ix]], collapse = ";") 
