@@ -1,6 +1,7 @@
 #!/bin/sh                                                                    
 
-
+# Call qsub with 
+# qsub -v cfgfile=/path/to/cfgfile.yaml /path/to/idorg.sh
 
 ## set name of script                                                           
 #PBS -N ben-taxizer                                                 
@@ -24,4 +25,4 @@ module load R
        
 CODEPATH=$(head -n 1 ~/.referee)
 cd $CODEPATH     
-Rscript ${CODEPATH}/idorg.R ${config}
+Rscript ${CODEPATH}/idorg.R ${cfgfile}
