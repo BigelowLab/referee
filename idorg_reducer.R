@@ -52,6 +52,7 @@ main = function(cfg){
     ss = split(species, species$group)
     if ("other" %in% names(ss)){  
       charlier::info("approximate matching input to %s idorg", name)
+      charlier::info("trying to match %i 'other'", nrow(ss[['other']]))
       idorg = readr::read_csv(cfg$input$idorg[[name]], col_types = 'c')
       ss[['other']] = ss[['other']] |>
         dplyr::rowwise() |>
@@ -68,7 +69,9 @@ main = function(cfg){
          }) |>
       dplyr::bind_rows()
       species = dplyr::bind_rows(ss)
-    }       
+    } else {
+      charlier::info("no remaing 'other' to match")
+    }      
   }
    
   readr::write_csv(species, file.path(cfg$output$path, sprintf("%s-compact-merged.csv.gz", cfg$version)))
