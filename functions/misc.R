@@ -1,3 +1,11 @@
+#' Tests if input is NULL or NA
+#'
+#' @param x object to be tested, if a vector then each is tested
+#' @return logical vector 
+is_nullna = function(x){
+  sapply(x, function(x) is.null(x) || is.na(x))
+}
+
 #' Like isTRUE and isFALSE but for vectors
 #' 
 #' @export
