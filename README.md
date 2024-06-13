@@ -8,23 +8,25 @@ All scripts are run with a configuration input - we have chosen [YAML as the con
 
 # Code
 
-All coding environments can, for now, be established by using `source()` on a special setup script cleverly names `setup.R`.   You **must** create a special hidden file that helps this code suite know where to find source code.  Use this command in R to set that up for your user.
+All coding environments can, for now, be established by using `source()` on a special setup script cleverly named `setup.R`.   You **must** create a special hidden file that helps this code suite know where to find source code.  Use this command in R to set that up for your user.
 
 ```
 cat("/some/path/to/the/referee/folder", sep = "\n", filename = "~/.referee")
 ```
 
-Obviously you will want to edit the path spcification.  If you are operating on `charlie` it will be `/mnt/storage/data/edna/packages/referee`.
+Obviously you will want to edit the path specification.  If you are operating on `charlie` it will be `/mnt/storage/data/edna/packages/referee`.
 
 ## Workflow scripts
 
-  + `setup`  `source` this file first in all your workflow scripts (or interactive sessions). It loads the packages and sources ancillary functions. 
+  + `setup`  `source("setup.R")` this file first in all your workflow scripts (or interactive sessions). It loads the packages and sources ancillary functions. 
   
   + `restez_fetch_and_build_db` downloads and builds databasii sequentially 
   
-  + `idorgs` mines the genbank databasii (plant, vertebrate, invertebrate, mammalian and rodents) for taxa id and organism name(s).  Results are saved in raw and compacted form.
+  + `restez_build_db` builds databasii sequentially (for previously fetched databasii).  Use this in cases where Ben used the wrong `max_length` argument value to `restez::db_create()` the first time.
   
-  + `idorgs_reducer` accepts the (compacted) `idorgs` and a user specified `species` listing.  All `species` are assigned to an 'other' group.  Then we iteratively attempt to match the user species to those in each of the `idorgs` (plant, vertebrate, invertebrate, mammalian and rodents).  We match with `base::match()` which uses byte matching.  Where matches are detected the input species is assigned to that group.  In this manner we keep reducing the size of the query set.  With the remainder of unmatched species we try approximate matching using `base::agrep()` iteratively.
+  + `idorgs` mines the genbank databasii (plant, vertebrate, invertebrate, mammalian and rodents) for all accession ids and organism names.  Results are saved in raw (long) and compacted form (wide).
+  
+  + `idorgs_reducer` accepts the (compacted) outout of  `idorgs` and a user specified `species` listing.  All `species` are assigned to an 'other' group to start with.  Then we iteratively attempt to match the user species to those in each of the `idorgs` (plant, vertebrate, invertebrate, mammalian and rodents).  We match with `base::match()` which uses byte matching which is very close to extact matching.  Where matches are detected the input species is assigned to that group.  In this manner we keep reducing the size of the query set.  With the remainder of unmatched species we try approximate matching using `base::agrep()` iteratively.
   
   + `taxizer` attempts to populate a complete taxonomy with IDs for a provided species list
   
