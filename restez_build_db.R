@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 
 cfgfile = commandArgs(trailingOnly = TRUE)
 if ((length(cfgfile) == 0) || (nchar(cfgfile) == 0)){
-  cfgfile = "/mnt/storage/data/edna/refdb/restez/restez_build_db.000.yaml"
+  cfgfile = "/mnt/storage/data/edna/mednaTaxaRef/egrey/input/restez_build_db.000.yaml"
 }
 
 cfg = charlier::read_config(cfgfile)

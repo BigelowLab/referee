@@ -14,9 +14,8 @@
 
 ## give job a looong time                       
 #PBS -l walltime=200:00:00 
-
-## use one compute node and one cpu (this will default to use 2gb of memory)                                                      
-#PBS -l select=1:ncpus=4:mem=128GB    
+                           
+#PBS -l select=1:ncpus=8:mem=256GB    
                                                               
 ## output files                                  
 #PBS -e /mnt/storage/data/edna/refdb/restez                                                           
