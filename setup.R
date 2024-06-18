@@ -1,6 +1,6 @@
 packages = list(
   CRAN = c("rlang", "taxize", "taxizedb", "rentrez", "AnnotationBustR", "ape", "ggplot2", "restez",
-           "argparser", "BiocManager", "remotes", "yaml", "stringr", "dplyr", "readr", "tidyr"),
+           "argparser", "BiocManager", "remotes", "yaml", "stringr", "readr", "tidyr", "dplyr"),
   bioc = c("Biostrings", "genbankr"),
   github = c("charlier" = "BigelowLab", "refdbtools" = "BigelowLab")
 )
@@ -27,10 +27,8 @@ suppressPackageStartupMessages({
 })
 
 RESTEZ_ROOT = "/mnt/storage/data/edna/refdb/restez"
-paths = c("invertebrate" = "invertebrate",
-          "plant" = "plant_with_fungi_algae",
-          "vertebrate" = "other_vertebrate") 
-RESTEZ_PATHS = sapply(names(paths), function(p) file.path(RESTEZ_ROOT, paths[p]) )
+dbs = c("invertebrate", "plant", "vertebrate", "mammalian", "rodent")
+RESTEZ_PATHS = sapply(dbs, function(p) file.path(RESTEZ_ROOT, p) )
   
 
 REFEREE_ROOT = readLines("~/.referee")

@@ -4,7 +4,7 @@
 # qsub -v cfgfile=/path/to/cfgfile.yaml /path/to/idorg.sh
 
 ## set name of script                                                           
-#PBS -N ben-taxizer                                                 
+#PBS -N ben-idorg                                               
 
 ## send the environment variables with job 
 #PBS -V

@@ -45,7 +45,7 @@ main = function(cfg){
     dplyr::group_map(
       function(tbl, key){
         charlier::info("chunk %i", key$index_[1])
-        Sys.sleep(cfg$tax_db$sleep)
+        #Sys.sleep(cfg$tax_db$sleep)
         r = try(taxizedb::classification(tbl[[1]], db=cfg$tax_db$db))
         if (!inherits(r, "try-error")){
           if (length(r) != nrow(tbl)){

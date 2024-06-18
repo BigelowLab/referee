@@ -10,7 +10,7 @@
 #PBS -V
 #PBS -q route                                                                   
 #PBS -l walltime=192:00:00                            
-#PBS -l select=1:ncpus=4:mem=128GB    
+#PBS -l select=1:ncpus=8:mem=256GB    
 
 # log options (in addition to logging by script)                                                            
 #PBS -e /mnt/storage/data/edna/mednaTaxaRef/egrey                                                   

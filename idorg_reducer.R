@@ -1,4 +1,5 @@
-# For each database in ['plant', 'vertebrate', 'invertebrate] do
+# attached a grouping to each entry
+# For each database in ['plant', 'vertebrate', 'invertebrate', ...] do
 #   taxids = restez::list_db_ids() |>
 #     restez::gb_organism_get() |>
 #     some_local_reduction_function_goes_here() |>  # <--- this?
@@ -74,7 +75,9 @@ main = function(cfg){
     }      
   }
    
-  readr::write_csv(species, file.path(cfg$output$path, sprintf("%s-compact-merged.csv.gz", cfg$version)))
+  readr::write_csv(species, file.path(cfg$output$path, sprintf("%s-compact-merged.csv.gz", cfg$version))) |>
+    tidyr::separate_longer_delim(id, delim = " ") |>
+    readr::write_csv(file.path(cfg$output$path, sprintf("%s-long-merged.csv.gz", cfg$version)))
  
   return(0)
 }
