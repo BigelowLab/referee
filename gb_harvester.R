@@ -33,10 +33,11 @@ main = function(cfg){
       dplyr::ungroup() |>
       dplyr::slice_sample(n = cfg$input$subsample, replace = FALSE)
   } else {
-    charlier::info("there are %i taxids available", length(taxids))
+    charlier::info("there are %i idorg records available", nrow(idorg))
   }  
   
   if (cfg$restez$select != "all"){
+    charlier::info("filtering to the selected group: %s", cfg$restez$select)
     idorg = dplyr::filter(idorg, group %in% cfg$restez$select)
   }
   
@@ -50,15 +51,15 @@ main = function(cfg){
   # close files
 
   extract_or_na = function(record, what){
-    x = restez::gb_extract(record, what)
-    if (is.null(x)) x = NA_character_
+    x = try(restez::gb_extract(record, what))
+    if (inherits(x, "try-error") || is.null(x)) x = NA_character_
       x
   }
 
-  metafile = file.path(cfg$output$path, sprintf("%s.metadata.tsv.gz", cfg$version))
-  seqfile = file.path(cfg$output$path, sprintf("%s.sequence.csv.gz", cfg$version))
+  metafile = file.path(cfg$output$path, sprintf("%s.%s.metadata.tsv.gz", cfg$version, cfg$restez$select))
+  seqfile = file.path(cfg$output$path, sprintf("%s.%s.sequence.csv.gz", cfg$version, cfg$restez$select))
   METAFILE = gzfile(metafile, open = "wt")
-  writeLines(paste(cfg$output$metadata, collapse = ","), con = METAFILE)
+  writeLines(paste(cfg$output$metadata, collapse = "\t"), con = METAFILE)
   SEQFILE = file(seqfile, open = "wt")
   x = dplyr::group_by(idorg, group) |>
     dplyr::group_map(
@@ -72,13 +73,24 @@ main = function(cfg){
         r = dplyr::rowwise(tbl)|>
           dplyr::group_walk(
             function(tab, quay){
-              rec = restez::gb_record_get(tab$id)
+              
+              rec = try(restez::gb_record_get(tab$id))
+              if (inherits(rec, "try-error")) {
+                charlier$error("error getting record for %s", tab$id)
+                x = NULL
+              }
               if (!is.null(rec)){
-                if (VERBOSE) cat(tab$id, "\n")
+                # here we check the the length is lass than the user specified maximum
+                locus = extract_or_na(rec, "locus")
+                if (is.na(locus) ||  as.numeric(locus[['length']]) > cfg$restez$max_length){
+                  rec = NULL
+                }  
+              }
+              if (!is.null(rec)){
+                if (VERBOSE) charlier::info("working on acc_id: %s", tab$id)
                 def = extract_or_na(rec, "definition")  
                 org = extract_or_na(rec, "organism")
-                locus = extract_or_na(rec, "locus") |>
-                  paste(collapse = " ")
+                locus = paste(locus, collapse = " ")
                 tax = dplyr::filter(taxa, species == org)
                 if (nrow(tax) == 0){
                   tax = paste(rep(NA_character_, ncol(taxa)-1), collapse = ",")
@@ -87,10 +99,10 @@ main = function(cfg){
                     as.matrix() |> as.vector() |>
                     paste(collapse = ",")
                 }
-                writeLines(paste(c(tab$id, org, def, dQuote(locus), tax), collapse = ","), con = METAFILE)
-                seq = restez::gb_extract(rec, "sequence")
-                if (!is.null(seq)){
-                  writeLines(paste(c(tab$id, seq), collapse = ","), con = SEQFILE)
+                writeLines(paste(c(tab$id, org, def, locus, tax), collapse = "\t"), con = METAFILE)
+                seqs = try(restez::gb_extract(rec, "sequence"))
+                if (!is.null(seq) && !inherits(seqs, "try-error")){
+                  writeLines(paste(c(tab$id, seqs), collapse = ","), con = SEQFILE)
                 }
               } # record is not null?
           }) # each row
