@@ -9,7 +9,7 @@
 ## send the environment variables
 #PBS -V
 #PBS -q route                                                                   
-#PBS -l walltime=192:00:00                            
+#PBS -l walltime=384:00:00                            
 #PBS -l select=1:ncpus=4:mem=128GB    
 
 # log options (in addition to logging by script)                                                            

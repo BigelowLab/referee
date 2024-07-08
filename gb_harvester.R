@@ -10,7 +10,7 @@ main = function(cfg){
     close(SEQFILE)
   })
   
-  VERBOSE = !is.null(cfg$input$subsample)
+  VERBOSE = !is.null(cfg$input$subsample) || interactive()
 
   charlier::info("starting version: %s", cfg$version)
   taxa = readr::read_csv(cfg$taxizedb$input, col_types = "c") |>
@@ -56,9 +56,11 @@ main = function(cfg){
       x
   }
 
-  metafile = file.path(cfg$output$path, sprintf("%s.%s.metadata.tsv.gz", cfg$version, cfg$restez$select))
-  seqfile = file.path(cfg$output$path, sprintf("%s.%s.sequence.csv.gz", cfg$version, cfg$restez$select))
-  METAFILE = gzfile(metafile, open = "wt")
+  metasep = "\t"
+  seqsep = ","
+  metafile = file.path(cfg$output$path, sprintf("%s.%s.metadata.tsv", cfg$version, cfg$restez$select))
+  seqfile = file.path(cfg$output$path, sprintf("%s.%s.sequence.csv", cfg$version, cfg$restez$select))
+  METAFILE = file(metafile, open = "wt")
   writeLines(paste(cfg$output$metadata, collapse = "\t"), con = METAFILE)
   SEQFILE = file(seqfile, open = "wt")
   x = dplyr::group_by(idorg, group) |>
@@ -76,7 +78,7 @@ main = function(cfg){
               
               rec = try(restez::gb_record_get(tab$id))
               if (inherits(rec, "try-error")) {
-                charlier$error("error getting record for %s", tab$id)
+                charlier::error("error getting record for %s", tab$id)
                 x = NULL
               }
               if (!is.null(rec)){
@@ -93,16 +95,16 @@ main = function(cfg){
                 locus = paste(locus, collapse = " ")
                 tax = dplyr::filter(taxa, species == org)
                 if (nrow(tax) == 0){
-                  tax = paste(rep(NA_character_, ncol(taxa)-1), collapse = ",")
+                  tax = paste(rep(NA_character_, ncol(taxa)-1), collapse = metasep)
                 } else {
                   tax = dplyr::select(tax, dplyr::any_of(cfg$output$metadata)) |>
                     as.matrix() |> as.vector() |>
-                    paste(collapse = ",")
+                    paste(collapse = metasep)
                 }
-                writeLines(paste(c(tab$id, org, def, locus, tax), collapse = "\t"), con = METAFILE)
+                writeLines(paste(c(tab$id, org, def, locus, tax), collapse = metasep), con = METAFILE)
                 seqs = try(restez::gb_extract(rec, "sequence"))
                 if (!is.null(seq) && !inherits(seqs, "try-error")){
-                  writeLines(paste(c(tab$id, seqs), collapse = ","), con = SEQFILE)
+                  writeLines(paste(c(tab$id, seqs), collapse = seqsep), con = SEQFILE)
                 }
               } # record is not null?
           }) # each row
